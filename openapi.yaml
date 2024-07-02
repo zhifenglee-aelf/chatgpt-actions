@@ -1,21 +1,60 @@
-openapi: 3.0.1
+openapi: 3.1.0
 info:
-    title: Stock Quote
-    description: Get price and volume information for a given stock.
-    version: "v1"
+  title: Aelf Explorer API
+  description: API for interacting with Aelf explorer to retrieve account balances.
+  version: 1.0.0
 servers:
-    - url: [YOUR_DOMAIN, must be HTTPS]
+  - url: https://explorer.aelf.io/api
+    description: Mainnet
 paths:
-    /stock:
-        get:
-            operationId: getStockData
-            summary: Retrieves the price and volume information for a given stock symbol.
-            parameters:
-                - in: query
-                  name: symbol
-                  schema:
-                      type: string
-                  description: The symbol of the stock to get a quote for. For example, the stock symbol MSFT represents the company Microsoft.
-            responses:
-                "200":
-                    description: OK
+  /viewer/balances:
+    get:
+      operationId: getBalances
+      summary: Get account balances
+      description: Retrieve the balance for a specific address.
+      parameters:
+        - name: address
+          in: query
+          description: The address for which to retrieve the balance.
+          required: true
+          schema:
+            type: string
+            example: 2qJ1EV38WyUTKTezAHEfFjHfQnMD89Bzky67Sn5eKzN1EexLoA
+      responses:
+        '200':
+          description: A JSON object containing the balance information
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  address:
+                    type: string
+                    description: The queried address
+                    example: 2qJ1EV38WyUTKTezAHEfFjHfQnMD89Bzky67Sn5eKzN1EexLoA
+                  balances:
+                    type: array
+                    items:
+                      type: object
+                      properties:
+                        symbol:
+                          type: string
+                          description: The symbol of the token
+                          example: ELF
+                        balance:
+                          type: string
+                          description: The balance of the token
+                          example: "1000.00000000"
+        '400':
+          description: Bad request, likely due to a missing or invalid address parameter
+components:
+  schemas:
+    Balance:
+      type: object
+      properties:
+        symbol:
+          type: string
+          description: The symbol of the token
+        balance:
+          type: string
+          description: The balance of the token
