@@ -1,60 +1,234 @@
 openapi: 3.1.0
 info:
-  title: Aelf Explorer API
-  description: API for interacting with Aelf explorer to retrieve account balances.
+  title: AElf Blockchain Data API
+  description: API for interacting with aelf's blockchain data for different chains.
   version: 1.0.0
 servers:
-  - url: https://explorer.aelf.io/api
-    description: Mainnet
+  - url: https://25b0-202-156-61-238.ngrok-free.app/
+    description: aelf api aggregator
 paths:
-  /viewer/balances:
+  /get-chains:
     get:
-      operationId: getBalances
-      summary: Get account balances
-      description: Retrieve the balance for a specific address.
-      parameters:
-        - name: address
-          in: query
-          description: The address for which to retrieve the balance.
-          required: true
-          schema:
-            type: string
-            example: 2qJ1EV38WyUTKTezAHEfFjHfQnMD89Bzky67Sn5eKzN1EexLoA
+      operationId: getChains
+      summary: Get a list of supported chains.
       responses:
         '200':
-          description: A JSON object containing the balance information
+          description: A list of supported chains.
           content:
             application/json:
               schema:
                 type: object
                 properties:
-                  address:
-                    type: string
-                    description: The queried address
-                    example: 2qJ1EV38WyUTKTezAHEfFjHfQnMD89Bzky67Sn5eKzN1EexLoA
-                  balances:
+                  chains:
                     type: array
                     items:
-                      type: object
-                      properties:
-                        symbol:
-                          type: string
-                          description: The symbol of the token
-                          example: ELF
-                        balance:
-                          type: string
-                          description: The balance of the token
-                          example: "1000.00000000"
+                      type: string
+  /get-balance:
+    get:
+      operationId: getBalance
+      summary: Get the balance of an address in the corresponding chain.
+      parameters:
+        - name: address
+          in: query
+          required: true
+          schema:
+            type: string
+        - name: chainId
+          in: query
+          required: true
+          schema:
+            type: string
+      responses:
+        '200':
+          description: Balance information.
+          content:
+            application/json:
+              schema:
+                type: object
         '400':
-          description: Bad request, likely due to a missing or invalid address parameter
-components:
-  schemas:
-    Balance:
-      type: object
-      properties:
-        symbol:
-          type: string
-          description: The symbol of the token
-        balance:
-          type: string
-          description: The balance of the token
+          description: Invalid request parameters.
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  error:
+                    type: string
+  /get-price:
+    get:
+      operationId: getPrice
+      summary: Get the price of a cryptocurrency.
+      parameters:
+        - name: symbol
+          in: query
+          required: false
+          schema:
+            type: string
+            default: ELF
+      responses:
+        '200':
+          description: Price information.
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  symbol:
+                    type: string
+                  price:
+                    type: number
+        '404':
+          description: Token not found.
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  error:
+                    type: string
+        '400':
+          description: Invalid request parameters.
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  error:
+                    type: string
+  /get-transaction-result:
+    get:
+      operationId: getTransactionResult
+      summary: Get the result of a transaction in a specific chain.
+      parameters:
+        - name: transactionId
+          in: query
+          required: true
+          schema:
+            type: string
+        - name: chainId
+          in: query
+          required: true
+          schema:
+            type: string
+      responses:
+        '200':
+          description: Transaction result.
+          content:
+            application/json:
+              schema:
+                type: object
+        '400':
+          description: Invalid request parameters.
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  error:
+                    type: string
+  /get-block-height:
+    get:
+      operationId: getBlockHeight
+      summary: Get the current block height in a specific chain.
+      parameters:
+        - name: chainId
+          in: query
+          required: true
+          schema:
+            type: string
+      responses:
+        '200':
+          description: Block height information.
+          content:
+            application/json:
+              schema:
+                type: object
+        '400':
+          description: Invalid request parameters.
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  error:
+                    type: string
+  /block-by-height:
+    get:
+      operationId: getBlockByHeight
+      summary: Get block information by block height in a specific chain.
+      parameters:
+        - name: blockHeight
+          in: query
+          required: true
+          schema:
+            type: integer
+        - name: includeTransactions
+          in: query
+          required: false
+          schema:
+            type: boolean
+            default: false
+        - name: chainId
+          in: query
+          required: true
+          schema:
+            type: string
+      responses:
+        '200':
+          description: Block information.
+          content:
+            application/json:
+              schema:
+                type: object
+        '400':
+          description: Invalid request parameters.
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  error:
+                    type: string
+  /get-transactions-by-address:
+    get:
+      operationId: getTransactionsByAddress
+      summary: Get transactions by address in a specific chain. Default value of page is 0.
+      parameters:
+        - name: address
+          in: query
+          required: true
+          schema:
+            type: string
+        - name: page
+          in: query
+          required: false
+          schema:
+            type: integer
+            default: 0
+        - name: limit
+          in: query
+          required: false
+          schema:
+            type: integer
+            default: 10
+        - name: chainId
+          in: query
+          required: true
+          schema:
+            type: string
+      responses:
+        '200':
+          description: Transactions information.
+          content:
+            application/json:
+              schema:
+                type: object
+        '400':
+          description: Invalid request parameters.
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  error:
+                    type: string
