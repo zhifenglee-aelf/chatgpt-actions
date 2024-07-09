@@ -14,7 +14,7 @@ urls = {
     "cmc": "https://pro-api.coinmarketcap.com/v1/cryptocurrency/quotes/latest"
 }
 
-CMC_API_KEY = "8241d5b8-e357-4ccc-a7ed-124e97c477b3"
+CMC_API_KEY = "<INSERT_YOUR_KEY_HERE>"
 
 def extract_pure_address(address):
     # Remove 'ELF_' prefix if present
